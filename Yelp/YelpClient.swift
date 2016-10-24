@@ -16,6 +16,7 @@ let yelpConsumerKey = "vxKwwcR_NMQ7WaEiQBK_CA"
 let yelpConsumerSecret = "33QCvh5bIF5jIHR5klQr7RtBDhQ"
 let yelpToken = "uRcRswHFYa1VkDrGV6LAW2F8clGh5JHV"
 let yelpTokenSecret = "mqtKIxMIR4iBtBPZCmCLEb-Dz3Y"
+let metersArray = ["40000", "484", "1609", "8047", "16093"]
 
 enum YelpSortMode: Int {
     case bestMatched = 0, distance, highestRated
@@ -44,10 +45,10 @@ class YelpClient: BDBOAuth1RequestOperationManager {
     }
     
     func searchWithTerm(_ term: String, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
-        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, completion: completion)
+        return searchWithTerm(term, sort: nil, categories: nil, deals: nil, distance: nil, completion: completion)
     }
     
-    func searchWithTerm(_ term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
+    func searchWithTerm(_ term: String, sort: YelpSortMode?, categories: [String]?, deals: Bool?, distance: String?, completion: @escaping ([Business]?, Error?) -> Void) -> AFHTTPRequestOperation {
         // For additional parameters, see http://www.yelp.com/developers/documentation/v2/search_api
         
         // Default the location to San Francisco
@@ -64,7 +65,16 @@ class YelpClient: BDBOAuth1RequestOperationManager {
         if deals != nil {
             parameters["deals_filter"] = deals! as AnyObject?
         }
-        
+        // adding for distance
+        if distance != nil {
+            print("distance: \(distance!)")
+            let distanceIndex = Int(distance!) ?? 0
+            print("distanceIndex: \(distanceIndex)")
+            let distanceMeters = metersArray[distanceIndex]
+            print("distanceMeters: \(distanceMeters)")
+            parameters["radius_filter"] = distanceMeters as AnyObject?
+        }
+        print("p:")
         print(parameters)
         
         return self.get("search", parameters: parameters,
